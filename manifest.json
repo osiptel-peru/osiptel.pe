@@ -1,0 +1,15 @@
+{
+  "name": "OSIPTEL Consultas",
+  "short_name": "OSIPTEL",
+  "start_url": "/osiptel.pe/index.html",
+  "display": "standalone",
+  "background_color": "#003366",
+  "theme_color": "#003366",
+  "icons": [
+    {
+      "src": "/osiptel.pe/logo-osiptel.webp",
+      "sizes": "192x192",
+      "type": "image/webp"
+    }
+  ]
+}
