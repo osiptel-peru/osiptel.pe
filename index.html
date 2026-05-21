@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Herramienta digital que te permite descubrir cuántas líneas telefónicas existen a tu nombre.">
     <title>OSIPTEL - Checa tus líneas</title>
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/osiptel.pe/manifest.json">
     <link href="https://checatuslineas.osiptel.gob.pe/image/osiptel.ico" rel="shortcut icon" type="image/x-icon">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -235,7 +235,7 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
+                navigator.serviceWorker.register('/osiptel.pe/service-worker.js')
                     .then(() => console.log('SW registrado'))
                     .catch(() => console.log('SW falló'));
             });
