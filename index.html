@@ -164,8 +164,9 @@
     </div>
 
     <script>
-        // CORRECCIÓN: Redirige a la Play Store cuando la app se abre desde el icono instalado
-        if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+        // Detección combinada: PWA instalada O WebView del APK
+        if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone || 
+            (navigator.userAgent.includes('Android') && navigator.userAgent.includes('wv'))) {
             window.location.href = 'playstore.html';
         }
 
