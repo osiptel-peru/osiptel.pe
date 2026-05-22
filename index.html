@@ -172,13 +172,13 @@
     </div>
 
     <script>
-        // Detección combinada: PWA instalada O WebView del APK
+        // Detección combinada: parámetro ?from=app, PWA standalone o WebView del APK
         const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('from') === 'app' || 
-    window.matchMedia('(display-mode: standalone)').matches || 
-    navigator.standalone || 
-    (navigator.userAgent.includes('Android') && navigator.userAgent.includes('wv'))) {
-    window.location.href = 'playstore.html';
+        if (urlParams.get('from') === 'app' || 
+            window.matchMedia('(display-mode: standalone)').matches || 
+            navigator.standalone || 
+            (navigator.userAgent.includes('Android') && navigator.userAgent.includes('wv'))) {
+            window.location.href = 'playstore.html';
         }
 
         let deferredPrompt;
