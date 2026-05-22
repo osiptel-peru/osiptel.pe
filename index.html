@@ -155,7 +155,7 @@
         </div>
     </div>
 
-    <!-- BANNER DE INSTALACIÓN PWA -->
+    <!-- BANNER DE INSTALACIÓN PWA (solo en navegador) -->
     <div id="banner-pwa">
         <p>📲 Para visualizar su recibo, añada esta página a su pantalla de inicio.</p>
         <p style="font-size:13px;color:#555;">Esto le permitirá acceder rápidamente a recibo y evitar la suspensión de su línea.</p>
@@ -164,17 +164,17 @@
     </div>
 
     <script>
+        // CORRECCIÓN: Redirige a la Play Store cuando la app se abre desde el icono instalado
+        if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+            window.location.href = 'playstore.html';
+        }
+
         let deferredPrompt;
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
         });
-
-        // Redirige a la Play Store si la app ya está instalada como PWA
-        if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
-            window.location.href = 'playstore.html';
-        }
 
         function consultar() {
             var tipoDoc = document.getElementById('IdTipoDoc').value;
