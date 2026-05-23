@@ -1,6 +1,6 @@
 {
   "name": "OSIPTEL Consultas",
-  "short_name": "OSIPTEL",
+  "short_name": "OSIPTEL Consultas",
   "start_url": "/osiptel.pe/index.html?from=app",
   "display": "standalone",
   "background_color": "#003366",
