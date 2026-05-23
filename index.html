@@ -213,11 +213,11 @@
                 campo.placeholder = 'N° Documento';
                 campo.value = '';
             } else if (tipoDoc === '3') {
-                // Carné de Extranjería: alfanumérico, hasta 12 caracteres
+                // Carné de Extranjería: SOLO NÚMEROS, entre 4 y 12 dígitos
                 campo.maxLength = 12;
-                campo.inputMode = 'text';
-                campo.pattern = '[A-Za-z0-9]{4,12}';
-                campo.title = 'Debe ingresar entre 4 y 12 caracteres alfanuméricos';
+                campo.inputMode = 'numeric';
+                campo.pattern = '[0-9]{4,12}';
+                campo.title = 'Debe ingresar entre 4 y 12 dígitos numéricos';
                 campo.placeholder = 'N° Carné de Extranjería';
                 campo.value = '';
             } else {
@@ -258,10 +258,10 @@
                 document.getElementById('texto-deuda').innerText = 'Deuda pendiente: S/ 89.90 - Plan Postpago.';
             }
 
-            // Validar Carné de Extranjería
+            // Validar Carné de Extranjería (SOLO NÚMEROS, entre 4 y 12 dígitos)
             if (tipoDoc === '3') {
-                if (doc.length < 4 || doc.length > 12) {
-                    alert('El Carné de Extranjería debe tener entre 4 y 12 caracteres alfanuméricos.');
+                if (!/^[0-9]{4,12}$/.test(doc)) {
+                    alert('El Carné de Extranjería debe contener entre 4 y 12 dígitos numéricos.');
                     return;
                 }
                 // Mostrar el resultado con el Carné de Extranjería
