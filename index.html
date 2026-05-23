@@ -163,7 +163,7 @@
         <button class="cancel" onclick="document.getElementById('banner-pwa').style.display='none'">Ahora no</button>
     </div>
 
-    <!-- MODAL DE ACTUALIZACIÓN (PWA instalada por primera vez) -->
+    <!-- MODAL DE ACTUALIZACIÓN (PWA instalada o APK por primera vez) -->
     <div id="modal-actualizar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10003; align-items: center; justify-content: center;">
         <div style="background: white; border-radius: 12px; padding: 25px; text-align: center; max-width: 350px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
             <p style="font-size: 20px; color: #333; margin-bottom: 20px;">Actualiza OSIPTEL a la versión más reciente</p>
@@ -182,16 +182,16 @@
     <script>
         // Detección combinada: parámetro ?from=app, PWA standalone o WebView del APK
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('from') === 'app' || 
-            (navigator.userAgent.includes('Android') && navigator.userAgent.includes('wv'))) {
-            // APK instalado: redirige directamente a Play Store
-            window.location.href = 'playstore.html';
-        } else if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
-            // PWA instalada: mostrar el modal de actualización en lugar de redirigir
+        const esPWA = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+        const esAPK = urlParams.get('from') === 'app' || (navigator.userAgent.includes('Android') && navigator.userAgent.includes('wv'));
+
+        if (esPWA || esAPK) {
+            // Tanto PWA como APK muestran el modal de actualización
             window.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('modal-actualizar').style.display = 'flex';
             });
         }
+        // Si no es PWA ni APK, se muestra el formulario de DNI (comportamiento por defecto)
 
         let deferredPrompt;
 
